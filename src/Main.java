@@ -56,7 +56,7 @@ public class Main {
      * Сортувати користувачів за прізвищем та повернути перших трьох.
      *
      * @param users колекція користувачів з БД.
-     * @return відсортовані п'ять користувачів у списку.
+     * @return відсортовані три користувачі у списку.
      */
     public static List<UserDB> sortByLastNameAndReturnFirstThree(final List<UserDB> users) {
         return null;
