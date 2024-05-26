@@ -1,7 +1,13 @@
 import model.UserDB;
 import model.UserDTO;
 
+import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.util.function.UnaryOperator.identity;
+import static java.util.stream.Collectors.*;
 
 /**
  * <p>Популярні завдання для закріплення теорії з тем про функціональне програмування, функціональні інтерфейси
@@ -18,7 +24,9 @@ public class Main {
      * @return колекція моделей користувачів для клієнта.
      */
     public static List<UserDTO> userDBToUserDTO(final List<UserDB> users) {
-        return null;
+        return users.stream()
+                .map(user -> new UserDTO(user.getUsername(),user.getFirstName(), user.getLastName(), user.getCity(), user.getCountry(), user.getBirthdayYear()))
+                .collect(toList());
     }
 
     /**
@@ -29,7 +37,10 @@ public class Main {
      * @return колекція користувачів, що відповідає умові.
      */
     public static List<UserDB> findUsersByYear(final List<UserDB> users, final int year) {
-        return null;
+
+        return users.stream()
+                .filter(user -> user.getBirthdayYear() == year)
+                .toList();
     }
 
     /**
@@ -39,7 +50,10 @@ public class Main {
      * @return середнє арифметичне віку або -1, якщо колекція пуста.
      */
     public static double getAverageUsersAge(final List<UserDB> users) {
-        return 0;
+
+        return users.stream()
+                .mapToDouble(user -> LocalDate.now().getYear() - user.getBirthdayYear())
+                .average().orElse(-1);
     }
 
     /**
@@ -49,7 +63,9 @@ public class Main {
      * @return хеш-таблиця, ключ якої - країна, а значення - список користувачів з відповідної країни.
      */
     public static Map<String, List<UserDB>> groupUsersByCountry(final List<UserDB> users) {
-        return null;
+
+        return users.stream()
+                .collect(groupingBy(UserDB::getCountry, mapping(identity(), toList())));
     }
 
     /**
@@ -59,7 +75,11 @@ public class Main {
      * @return відсортовані три користувачі у списку.
      */
     public static List<UserDB> sortByLastNameAndReturnFirstThree(final List<UserDB> users) {
-        return null;
+
+        return users.stream()
+                .sorted(Comparator.comparing(UserDB::getLastName))
+                .limit(3)
+                .toList();
     }
 
     /**
@@ -69,7 +89,10 @@ public class Main {
      * @return хеш-таблиця, ключ якої - рік, а значення - відсортовані прізвища.
      */
     public static Map<Integer, Set<String>> groupSortedLastNamesByYear(final List<UserDB> users) {
-        return null;
+
+        return users.stream()
+                .collect(groupingBy(UserDB::getBirthdayYear,
+                        mapping(UserDB::getLastName, Collectors.toCollection(TreeSet::new))));
     }
 
     /**
@@ -79,7 +102,11 @@ public class Main {
      * @return колекція відсортованих користувачів.
      */
     public static List<UserDB> sortByFirstNameAndLastName(final List<UserDB> users) {
-        return null;
+
+        return users.stream()
+                .sorted(Comparator.comparing(UserDB::getFirstName)
+                    .thenComparing(UserDB::getLastName))
+                .toList();
     }
 
     /**
@@ -90,7 +117,10 @@ public class Main {
      * @return true - якщо такий користувач наявний, false - інакше.
      */
     public static boolean isUserWithEmailExists(final List<UserDB> users, final String email) {
-        return false;
+
+        return users.stream()
+                .map(UserDB::getEmail)
+                .anyMatch(usersMail -> usersMail.equals(email));
     }
 
     /**
@@ -108,7 +138,10 @@ public class Main {
      * @return визначена кількість елементів визначеної сторінки.
      */
     public static List<UserDB> returnPageWithSize(final List<UserDB> users, final int page, final int pageSize) {
-        return null;
+        return users.stream()
+                .skip(page * pageSize)
+                .limit(pageSize)
+                .collect(toList());
     }
 
     /**
@@ -118,6 +151,11 @@ public class Main {
      * @return хеш-таблиця, ключ якої - символ (літера), а значення - її кількість в усіх прізвищах.
      */
     public static Map<Character, Long> getCharsFrequencyFromLastName(final List<UserDB> users) {
-        return null;
+
+        return users.stream()
+                .map(UserDB::getLastName)
+                .flatMapToInt(String::chars)
+                .mapToObj(c -> (char) c)
+                .collect(groupingBy(Function.identity(), counting()));
     }
 }
